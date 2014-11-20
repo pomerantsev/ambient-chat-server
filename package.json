@@ -1,0 +1,19 @@
+{
+  "name": "chat-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "^1.2.0",
+    "redis": "^0.12.1",
+    "promise": "^6.0.1",
+    "lodash": "^2.4.1",
+    "node-gcm": "^0.9.12",
+    "apn": "^1.6.2"
+  }
+}
