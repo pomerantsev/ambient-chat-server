@@ -21,7 +21,6 @@ module.exports = {
     var client = redis.createClient();
     client.subscribe(senderChannelId(subscribingUserId, otherUserId));
     client.on('message', function (channel, message) {
-      console.log('Client is being notified');
       callback(JSON.parse(message));
     });
     return client;
@@ -37,7 +36,6 @@ module.exports = {
         storage.markDialogAsReceived(message.from, message.to);
       } else {
         pushNotifications.notify(message);
-        console.log('Sending a push notification to the receiver');
       }
     })
   }

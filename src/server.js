@@ -76,7 +76,7 @@ io.on('connection', function (client) {
     deleteClientConnection();
   });
 
-  client.on('message', function (message, successCallback) {
+  client.on('message', function (message) {
     if (client.user) {
       if (message.to && message.text && message.to !== client.user.id) {
         message.from = client.user.id;
