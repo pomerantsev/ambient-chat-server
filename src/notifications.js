@@ -1,12 +1,11 @@
+var config = require('./config.js');
 var storage = require('./storage.js');
 var pushNotifications = require('./push-notifications.js');
 var redis = require('redis');
 var publisher = redis.createClient();
 
-var channelPrefix = 'ambient-chat-message-';
-
 function channelId (userId1, userId2) {
-  return channelPrefix + userId1 + '-' + userId2;
+  return config.prefix + '-message-' + userId1 + '-' + userId2;
 }
 
 function senderChannelId (senderId, recipientId) {

@@ -1,12 +1,12 @@
+var config = require('./config.js');
+
 var gcm = require('node-gcm');
 var apn = require('apn');
 
 var db = require('redis').createClient();
 
-var prefix = 'ambient-chat-';
-
 function getAndroidKey (userId) {
-  return prefix + 'android-' + userId;
+  return config.prefix + '-android-' + userId;
 }
 
 function notifyAndroid (message) {

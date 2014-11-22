@@ -1,15 +1,14 @@
+var config = require('./config.js');
 var db = require('redis').createClient();
 var Promise = require('promise');
 var _ = require('lodash');
 
-var prefix = 'ambient-chat-';
-
 function getDialogKey(userId1, userId2) {
-  return prefix + (userId1 < userId2 ? userId1 + '-' + userId2 : userId2 + '-' + userId1);
+  return config.prefix + '-' + (userId1 < userId2 ? userId1 + '-' + userId2 : userId2 + '-' + userId1);
 }
 
 function getUserKey(userId) {
-  return prefix + userId;
+  return config.prefix + '-' + userId;
 }
 
 module.exports = {

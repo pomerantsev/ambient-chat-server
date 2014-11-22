@@ -1,8 +1,9 @@
+var config = require('./config.js');
 var storage = require('./storage.js');
 var notifications = require('./notifications.js');
 var pushNotifications = require('./push-notifications.js');
 
-var io = require('socket.io')(8080);
+var io = require('socket.io')(config.port);
 
 io.on('connection', function (client) {
   function deleteClientConnection () {
