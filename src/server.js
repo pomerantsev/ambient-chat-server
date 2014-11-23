@@ -29,20 +29,20 @@ io.on('connection', function (client) {
           } else {
             client.user = authenticatedUser;
             pushNotifications.registerDevice(user.id, user.regId);
-            successCallback();
+            successCallback && successCallback();
           }
         });
     }
   });
   client.on('logout', function (successCallback) {
     deleteClientConnection();
-    successCallback();
+    successCallback && successCallback();
   });
   client.on('getDialogs', function (successCallback) {
     if (client.user) {
       storage.getDialogs(client.user.id)
         .then(function (dialogs) {
-          successCallback(dialogs);
+          successCallback && successCallback(dialogs);
         });
     } else {
       // handle error
@@ -58,7 +58,7 @@ io.on('connection', function (client) {
           });
           storage.markDialogAsReceived(userId, client.user.id)
             .then(function () {
-              successCallback(messages);
+              successCallback && successCallback(messages);
             });
         });
     } else {
@@ -78,12 +78,13 @@ io.on('connection', function (client) {
     deleteClientConnection();
   });
 
-  client.on('message', function (message) {
+  client.on('message', function (message, successCallback) {
     if (client.user) {
       if (message.to && message.text && message.to !== client.user.id) {
         message.from = client.user.id;
         return storage.storeMessage(message)
           .then(function (storedMessage) {
+            successCallback && successCallback();
             notifications.publish(storedMessage);
           });
       }
