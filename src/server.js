@@ -56,8 +56,10 @@ io.on('connection', function (client) {
           client.subscriberClient = notifications.subscribe(client.user.id, userId, function (message) {
             client.emit('message', message);
           });
-          successCallback(messages);
-          storage.markDialogAsReceived(userId, client.user.id);
+          storage.markDialogAsReceived(userId, client.user.id)
+            .then(function () {
+              successCallback(messages);
+            });
         });
     } else {
       // handle error

@@ -2,8 +2,10 @@ var assert = require('assert');
 var io = require('socket.io-client');
 
 var server = require('../src/server.js');
+var db = require('redis').createClient();
+var config = require('../src/config.js');
 
-var url = 'http://localhost:8080';
+var url = 'http://localhost:' + config.port;
 var options = {
   transports: ['websocket'],
   'force new connection': true
@@ -88,6 +90,31 @@ describe('server', function () {
           })
         })
       });
+    })
+  })
+
+  describe('getDialogs', function () {
+    beforeEach(function (done) {
+      db.eval('return redis.call("del", unpack(redis.call("keys", "' + config.prefix + '*")))', 0, function () {
+        done();
+      })
+    })
+    it('returns an empty array when user hasn\'t exchanged any messages previously', function (done) {
+      var client1 = io(url, options);
+      var client2 = io(url, options);
+
+      client1.emit('login', {id: 'user1'}, function () {
+        client1.emit('startSession', 'user2', function () {
+          client1.emit('getDialogs', function (dialogs) {
+            assert.deepEqual(dialogs, []);
+            done();
+          })
+        })
+      })
+    });
+
+    it('returns one dialog if a user has exchanged messages with another user', function () {
+
     })
   })
 })

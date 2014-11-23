@@ -27,9 +27,12 @@ module.exports = {
       });
   },
   markDialogAsReceived: function (fromUser, toUser) {
-    return Promise.denodeify(db.hset).call(
+    return Promise.denodeify(db.eval).call(
       db,
-      getUserKey(toUser), fromUser, 0
+      'if redis.call("hexists", "' + getUserKey(toUser) + '", "' + fromUser + '") == 1 ' +
+        'then redis.call("hset", "' + getUserKey(toUser) + '", "' + fromUser + '", 0) ' +
+      'end',
+      0
     );
   },
   getDialog: function (userId1, userId2) {
