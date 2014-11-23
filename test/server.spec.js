@@ -1,15 +1,35 @@
 var assert = require('assert');
 var io = require('socket.io-client');
+var mockery = require('mockery');
 
-var server = require('../src/server.js');
+var server;
 var db = require('redis').createClient();
-var config = require('../src/config.js');
+var config;
 
-var url = 'http://localhost:' + config.port;
+var url;
 var options = {
   transports: ['websocket'],
   'force new connection': true
 };
+var mockConfig = {
+  port: 8081,
+  prefix: 'test-ambient-chat'
+};
+
+before(function () {
+  mockery.enable({
+    warnOnUnregistered: false
+  });
+  mockery.registerMock('./config.js', mockConfig);
+  config = mockConfig;
+
+  server = require('../src/server.js');
+  url = 'http://localhost:' + config.port;
+});
+
+after(function () {
+  mockery.disable();
+})
 
 describe('server', function () {
 
