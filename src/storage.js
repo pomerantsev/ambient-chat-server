@@ -1,15 +1,14 @@
+var config = require('./config.js');
 var db = require('redis').createClient();
 var Promise = require('promise');
 var _ = require('lodash');
 
-var prefix = 'ambient-chat-';
-
 function getDialogKey(userId1, userId2) {
-  return prefix + (userId1 < userId2 ? userId1 + '-' + userId2 : userId2 + '-' + userId1);
+  return config.prefix + '-' + (userId1 < userId2 ? userId1 + '-' + userId2 : userId2 + '-' + userId1);
 }
 
 function getUserKey(userId) {
-  return prefix + userId;
+  return config.prefix + '-' + userId;
 }
 
 module.exports = {
@@ -28,9 +27,12 @@ module.exports = {
       });
   },
   markDialogAsReceived: function (fromUser, toUser) {
-    return Promise.denodeify(db.hset).call(
+    return Promise.denodeify(db.eval).call(
       db,
-      getUserKey(toUser), fromUser, 0
+      'if redis.call("hexists", "' + getUserKey(toUser) + '", "' + fromUser + '") == 1 ' +
+        'then redis.call("hset", "' + getUserKey(toUser) + '", "' + fromUser + '", 0) ' +
+      'end',
+      0
     );
   },
   getDialog: function (userId1, userId2) {

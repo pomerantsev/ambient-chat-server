@@ -1,16 +1,15 @@
+var config = require('./config.js');
+
 var gcm = require('node-gcm');
 var apn = require('apn');
 
 var db = require('redis').createClient();
 
-var prefix = 'ambient-chat-';
-
 function getAndroidKey (userId) {
-  return prefix + 'android-' + userId;
+  return config.prefix + '-android-' + userId;
 }
 
 function notifyAndroid (message) {
-  console.log('Notifying an Android device about', message);
   var pushNotification = new gcm.Message();
   // This is the API Key that corresponds to the senderID that's used by the Cordova app
   // when registering for push notifications.
@@ -19,23 +18,18 @@ function notifyAndroid (message) {
   pushNotification.addDataWithObject({text: message.text});
 
   db.smembers(getAndroidKey(message.to), function (_, regIds) {
-    console.log('Sending a notification to', regIds);
     sender.send(pushNotification, regIds, 4, function (err, result) {
-      console.log('GCM push notification result:');
-      console.log(result);
+
     });
   });
 }
 
 function notifyIos (message) {
-  console.log('Notifying an iOS device about', message);
 }
 
 module.exports = {
   registerDevice: function (userId, regId) {
-    console.log('Registering device', regId, 'for user', userId);
     db.sadd(getAndroidKey(userId), regId, function (err, res) {
-      console.log(err);
     });
     // The key containing all user's devices will expire in a month
     // after user logged in for the last time.

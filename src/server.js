@@ -1,8 +1,9 @@
+var config = require('./config.js');
 var storage = require('./storage.js');
 var notifications = require('./notifications.js');
 var pushNotifications = require('./push-notifications.js');
 
-var io = require('socket.io')(8080);
+var io = require('socket.io')(config.port);
 
 io.on('connection', function (client) {
   function deleteClientConnection () {
@@ -28,20 +29,20 @@ io.on('connection', function (client) {
           } else {
             client.user = authenticatedUser;
             pushNotifications.registerDevice(user.id, user.regId);
-            successCallback();
+            successCallback && successCallback();
           }
         });
     }
   });
   client.on('logout', function (successCallback) {
     deleteClientConnection();
-    successCallback();
+    successCallback && successCallback();
   });
   client.on('getDialogs', function (successCallback) {
     if (client.user) {
       storage.getDialogs(client.user.id)
         .then(function (dialogs) {
-          successCallback(dialogs);
+          successCallback && successCallback(dialogs);
         });
     } else {
       // handle error
@@ -55,8 +56,10 @@ io.on('connection', function (client) {
           client.subscriberClient = notifications.subscribe(client.user.id, userId, function (message) {
             client.emit('message', message);
           });
-          successCallback(messages);
-          storage.markDialogAsReceived(userId, client.user.id);
+          storage.markDialogAsReceived(userId, client.user.id)
+            .then(function () {
+              successCallback && successCallback(messages);
+            });
         });
     } else {
       // handle error
@@ -81,6 +84,7 @@ io.on('connection', function (client) {
         message.from = client.user.id;
         return storage.storeMessage(message)
           .then(function (storedMessage) {
+            successCallback && successCallback();
             notifications.publish(storedMessage);
           });
       }
